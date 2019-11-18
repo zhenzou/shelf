@@ -1,25 +1,33 @@
 package shelf
 
 type Shelf interface {
-	Search(name string)
-	Source(name string)
+	Search(name string) []Book
+	Source(name string) (Source, bool)
 }
 
 type Source interface {
 	Name() string
-	Search(name string)
-	Class()
+	Search(name string) []Book
+	Classes() []Class
+}
+
+type Class interface {
+	Name() string
+	Search(name string) []Book
 }
 
 type Book interface {
+	Source() Source
 	Name() string
 	Author() string
-	Platform() string
-	Chapters()
+	Chapters() []Chapter
+	ChapterAt(index int) Chapter
+	SearchChapter(name string) (Chapter, bool)
 }
 
 type Chapter interface {
-	Name() string
+	Book() Book
 	Index() int
+	Name() int
 	Content() string
 }
