@@ -28,6 +28,7 @@ type Book interface {
 	Name() string
 	URL() string
 	Author() string
+	Introduce() string
 	Chapters() []Chapter
 	ChapterAt(index int) Chapter
 	SearchChapter(name string) (Chapter, bool)
@@ -36,11 +37,12 @@ type Book interface {
 type Chapter interface {
 	Book() Book
 	Index() int
-	Name() int
+	Name() string
 	URL() string
 	Content(ctx context.Context) string
 }
 
-type Extract interface {
+type Extractor interface {
 	ExtractBook(content string, rule BookRule) (Book, error)
+	ExtractChapter(content string, rule BookRule) (Book, error)
 }

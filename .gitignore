@@ -50,3 +50,4 @@ tmp/
 *_server
 *_cmd
 *.log
+.DS_Store

@@ -17,12 +17,16 @@ type SourceRule struct {
 }
 
 type BookRule struct {
-	Name           string `json:"name"`
-	Author         string `json:"author"`
-	Cover          string `json:"cover"`
-	Class          string `json:"class"`
-	Introduce      string `json:"introduce"`
-	ChapterURL     string `json:"chapter_url"`
-	ChapterName    string `json:"chapter_name"`
-	ChapterContent string `json:"chapter_content"`
+	Name        string      `json:"name"`
+	Author      string      `json:"author"`
+	Cover       string      `json:"cover"`
+	Class       string      `json:"class"`
+	Introduce   string      `json:"introduce"`
+	ChapterURL  string      `json:"chapter_url"`
+	ChapterRule ChapterRule `json:"chapter_rule"`
+}
+
+type ChapterRule struct {
+	Name    string `json:"name"`
+	Content string `json:"content"`
 }
