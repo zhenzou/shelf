@@ -1,17 +1,14 @@
 package shelf
 
+import "context"
+
 type book struct {
-	source    Source
 	extractor Extractor
 	name      string
 	url       string
 	author    string
 	introduce string
-	chapters  []Chapter
-}
-
-func (b *book) Source() Source {
-	return b.source
+	chapters  []chapter
 }
 
 func (b *book) Name() string {
@@ -30,19 +27,32 @@ func (b *book) Introduce() string {
 	return b.introduce
 }
 
+// TODO cache
 func (b *book) Chapters() []Chapter {
-	return b.chapters
+	chapters := make([]Chapter, 0, len(b.chapters))
+	for _, chapter := range b.chapters {
+		chapters = append(chapters, newChapter(chapter.name, chapter.url))
+	}
+	return chapters
 }
 
 func (b *book) ChapterAt(index int) Chapter {
-	return b.chapters[index]
+	ch := b.chapters[index]
+	return newChapter(ch.name, ch.url)
 }
 
 func (b *book) SearchChapter(name string) (Chapter, bool) {
 	for _, chapter := range b.chapters {
 		if chapter.Name() == name {
-			return chapter, true
+			return newChapter(chapter.name, chapter.url), true
 		}
 	}
 	return nil, false
+}
+
+type bookImpl struct {
+}
+
+func (b bookImpl) Get(ctx context.Context) (book, error) {
+	panic("implement me")
 }

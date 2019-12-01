@@ -9,13 +9,13 @@ type Shelf interface {
 	Sources() []Source
 	SourceByName(name string) (Source, bool)
 	SourceByURL(url url.URL) (Source, bool)
-	Search(ctx context.Context, name string) []Book
+	Search(ctx context.Context, name string) ([]Book, error)
 }
 
 type Source interface {
 	Name() string
-	Search(ctx context.Context, name string) []Book
-	Classes(ctx context.Context) []Class
+	Search(ctx context.Context, name string) ([]Book, error)
+	Classes(ctx context.Context) ([]Class, error)
 }
 
 type Class interface {
@@ -24,22 +24,16 @@ type Class interface {
 }
 
 type Book interface {
-	Source() Source
-	Name() string
-	URL() string
-	Author() string
-	Introduce() string
-	Chapters() []Chapter
+	Get(ctx context.Context) (book, error)
+}
+
+type Chapters interface {
 	ChapterAt(index int) Chapter
 	SearchChapter(name string) (Chapter, bool)
 }
 
 type Chapter interface {
-	Book() Book
-	Index() int
-	Name() string
-	URL() string
-	Content(ctx context.Context) string
+	Get(ctx context.Context) (chapter, error)
 }
 
 type Extractor interface {
