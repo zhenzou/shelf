@@ -1,41 +1,50 @@
 package shelf
 
 import (
-	"strings"
+	"bytes"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-type extract struct {
+func newExtractor(url string, content []byte, rule BookRule) extractor {
+	return extractor{
+		content: content,
+		rule:    rule,
+	}
 }
 
-func (e *extract) ExtractBook(content string, rule BookRule) (Book, error) {
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
+type extractor struct {
+	url     string
+	content []byte
+	rule    BookRule
+}
+
+func (e extractor) ExtractBook() (book, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(e.content))
 	if err != nil {
-		return nil, err
+		return book{}, err
 	}
+	rule := e.rule
 	name := doc.Find(rule.Name).Text()
 	author := doc.Find(rule.Author).Text()
 	introduce := doc.Find(rule.Introduce).Text()
 
-	chapters := []Chapter{}
+	chapters := []chapter{}
 
 	doc.Find(rule.ChapterURL).Each(func(i int, elm *goquery.Selection) {
 		val, _ := elm.Attr("href")
-		chapters = append(chapters, &chapter{index: i, url: val})
+		chapters = append(chapters, chapter{index: i, url: val})
 	})
 
-	return &book{
-		source:    nil,
-		extractor: e,
+	return book{
 		name:      name,
-		url:       "",
+		url:       e.url,
 		author:    author,
 		chapters:  chapters,
 		introduce: introduce,
 	}, nil
 }
 
-func (e *extract) ExtractChapter(content string, rule BookRule) (Book, error) {
+func (e extractor) ExtractChapter() (chapter, error) {
 	panic("implement me")
 }

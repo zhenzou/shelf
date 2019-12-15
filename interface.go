@@ -10,6 +10,7 @@ type Shelf interface {
 	SourceByName(name string) (Source, bool)
 	SourceByURL(url url.URL) (Source, bool)
 	Search(ctx context.Context, name string) ([]Book, error)
+	Extractor(name string, url url.URL) (Extractor, error)
 }
 
 type Source interface {
@@ -37,6 +38,6 @@ type Chapter interface {
 }
 
 type Extractor interface {
-	ExtractBook(content string, rule BookRule) (Book, error)
-	ExtractChapter(content string, rule BookRule) (Book, error)
+	ExtractBook() (book, error)
+	ExtractChapter() (chapter, error)
 }
