@@ -1,47 +1,37 @@
 package shelf
 
-import "context"
+func NewChapter(name, url string) chapter {
+	return chapter{
+		name: name,
+		url:  url,
+	}
+}
 
 type chapter struct {
-	book    Book
-	name    string
-	index   int
-	url     string
-	content string
+	name string
+	url  string
 }
 
 func (c *chapter) URL() string {
 	return c.url
 }
 
-func (c *chapter) Book() Book {
-	return c.book
-}
-
-func (c *chapter) Index() int {
-	return c.index
-}
-
 func (c *chapter) Name() string {
 	return c.name
 }
 
-func (c *chapter) Content() string {
-	return c.content
-}
-
-func newChapter(name, url string) Chapter {
-	return &chapterImpl{
-		name: name,
-		url:  url,
+func NewChapterDetail(chapter chapter, content string) chapterDetail {
+	return chapterDetail{
+		chapter: chapter,
+		content: content,
 	}
 }
 
-type chapterImpl struct {
-	name string
-	url  string
+type chapterDetail struct {
+	chapter
+	content string
 }
 
-func (c chapterImpl) Get(ctx context.Context) (chapter, error) {
-	panic("implement me")
+func (c *chapterDetail) Content() string {
+	return c.content
 }

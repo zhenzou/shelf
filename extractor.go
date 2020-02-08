@@ -2,49 +2,61 @@ package shelf
 
 import (
 	"bytes"
-
+	
+	"github.com/pkg/errors"
 	"github.com/PuerkitoBio/goquery"
 )
 
 func newExtractor(url string, content []byte, rule BookRule) extractor {
 	return extractor{
-		content: content,
-		rule:    rule,
+		content:  content,
+		bookRule: rule,
 	}
 }
 
 type extractor struct {
-	url     string
-	content []byte
-	rule    BookRule
+	url         string
+	content     []byte
+	bookRule    BookRule
+	chapterRule ChapterRule
 }
 
-func (e extractor) ExtractBook() (book, error) {
+func (e extractor) ExtractBook() (bookDetail, error) {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(e.content))
 	if err != nil {
-		return book{}, err
+		return bookDetail{}, &Error{ParseHTMLError, errors.WithStack(err)}
 	}
-	rule := e.rule
-	name := doc.Find(rule.Name).Text()
-	author := doc.Find(rule.Author).Text()
-	introduce := doc.Find(rule.Introduce).Text()
+	bookRule := e.bookRule
+	name := doc.Find(bookRule.Name).Text()
+	author := doc.Find(bookRule.Author).Text()
+	introduce := doc.Find(bookRule.Introduce).Text()
 
 	chapters := []chapter{}
-
-	doc.Find(rule.ChapterURL).Each(func(i int, elm *goquery.Selection) {
+	doc.Find(e.chapterRule.URL).Each(func(i int, elm *goquery.Selection) {
 		val, _ := elm.Attr("href")
-		chapters = append(chapters, chapter{index: i, url: val})
+		chapters = append(chapters, chapter{url: val})
+	})
+	doc.Find(e.chapterRule.Name).Each(func(i int, elm *goquery.Selection) {
+		val := elm.Text()
+		c := chapters[i]
+		c.name = val
+		chapters[i] = c
 	})
 
-	return book{
-		name:      name,
-		url:       e.url,
-		author:    author,
-		chapters:  chapters,
-		introduce: introduce,
-	}, nil
+	chapter := chapters[len(chapters)-1]
+
+	return NewBookDetail(NewBook(name, e.url, author, introduce, &chapter), chapters), nil
 }
 
-func (e extractor) ExtractChapter() (chapter, error) {
-	panic("implement me")
+func (e extractor) ExtractChapter() (chapterDetail, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(e.content))
+	if err != nil {
+		return chapterDetail{}, &Error{ParseHTMLError, errors.WithStack(err)}
+	}
+	chapterRule := e.chapterRule
+	name := doc.Find(chapterRule.Name).Text()
+
+	chapter := NewChapter(name, e.url)
+	content := doc.Find(chapterRule.Content).Text()
+	return NewChapterDetail(chapter, content), nil
 }

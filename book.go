@@ -1,14 +1,21 @@
 package shelf
 
-import "context"
+func NewBook(name, url, author, introduce string, chapter *chapter) book {
+	return book{
+		name:      name,
+		url:       url,
+		author:    author,
+		introduce: introduce,
+		chapter:   chapter,
+	}
+}
 
 type book struct {
-	extractor Extractor
 	name      string
 	url       string
 	author    string
 	introduce string
-	chapters  []chapter
+	chapter   *chapter
 }
 
 func (b *book) Name() string {
@@ -27,32 +34,35 @@ func (b *book) Introduce() string {
 	return b.introduce
 }
 
-// TODO cache
-func (b *book) Chapters() []Chapter {
-	chapters := make([]Chapter, 0, len(b.chapters))
-	for _, chapter := range b.chapters {
-		chapters = append(chapters, newChapter(chapter.name, chapter.url))
+func (b *book) Chapter() *chapter {
+	return b.chapter
+}
+
+func NewBookDetail(book book, chapters []chapter) bookDetail {
+	return bookDetail{
+		book:     book,
+		chapters: chapters,
 	}
-	return chapters
 }
 
-func (b *book) ChapterAt(index int) Chapter {
-	ch := b.chapters[index]
-	return newChapter(ch.name, ch.url)
+type bookDetail struct {
+	book
+	chapters []chapter
 }
 
-func (b *book) SearchChapter(name string) (Chapter, bool) {
+func (b *bookDetail) Chapters() []chapter {
+	return b.chapters
+}
+
+func (b *bookDetail) ChapterAt(index int) chapter {
+	return b.chapters[index]
+}
+
+func (b *bookDetail) SearchChapter(name string) (*chapter, bool) {
 	for _, chapter := range b.chapters {
 		if chapter.Name() == name {
-			return newChapter(chapter.name, chapter.url), true
+			return &chapter, true
 		}
 	}
 	return nil, false
-}
-
-type bookImpl struct {
-}
-
-func (b bookImpl) Get(ctx context.Context) (book, error) {
-	panic("implement me")
 }

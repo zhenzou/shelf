@@ -1,32 +1,42 @@
 package shelf
 
 type SourceRule struct {
-	Name    string `json:"name"`
-	BaseURL string `json:"base_url"`
-	Type    string `json:"type"`
+	Name    string
+	BaseURL string
+	Tags    []string
+	Order   int
+	Enable  bool
 	Rules   struct {
-		Index struct {
-			URL  string   `json:"url"`
-			Rule BookRule `json:"rule"`
-		} `json:"index"`
-		Search struct {
-			URL  string   `json:"url"`
-			Rule BookRule `json:"rule"`
-		}
-	} `json:"rules"`
+		Index   ListRule
+		Search  ListRule
+		Book    BookRule
+		Chapter ChapterRule
+	}
+}
+
+type ListRule struct {
+	URL     string
+	List    string
+	Book    BookRule
+	Chapter ChapterRule
 }
 
 type BookRule struct {
-	Name        string      `json:"name"`
-	Author      string      `json:"author"`
-	Cover       string      `json:"cover"`
-	Class       string      `json:"class"`
-	Introduce   string      `json:"introduce"`
-	ChapterURL  string      `json:"chapter_url"`
-	ChapterRule ChapterRule `json:"chapter_rule"`
+	Name        string
+	Author      string
+	Cover       string
+	Class       string
+	Introduce   string
+	ChapterList string
 }
 
 type ChapterRule struct {
-	Name    string `json:"name"`
-	Content string `json:"content"`
+	Name    string
+	URL     string
+	Content string
+}
+
+type Args struct {
+	Name string
+	Page string
 }
