@@ -23,3 +23,18 @@ type Extractor interface {
 	ExtractBook() (book, error)
 	ExtractChapter() (chapter, error)
 }
+
+type Request struct {
+	Method string
+	URL    string
+	Args   Args
+}
+
+type Response struct {
+	Request
+	Data []byte
+}
+
+type Executor interface {
+	Exec(req Request) (Response, error)
+}

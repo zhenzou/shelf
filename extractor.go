@@ -2,8 +2,7 @@ package shelf
 
 import (
 	"bytes"
-	
-	"github.com/pkg/errors"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -24,7 +23,7 @@ type extractor struct {
 func (e extractor) ExtractBook() (bookDetail, error) {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(e.content))
 	if err != nil {
-		return bookDetail{}, &Error{ParseHTMLError, errors.WithStack(err)}
+		return bookDetail{}, NewHTMLParseError(err, e.content)
 	}
 	bookRule := e.bookRule
 	name := doc.Find(bookRule.Name).Text()
@@ -51,7 +50,7 @@ func (e extractor) ExtractBook() (bookDetail, error) {
 func (e extractor) ExtractChapter() (chapterDetail, error) {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(e.content))
 	if err != nil {
-		return chapterDetail{}, &Error{ParseHTMLError, errors.WithStack(err)}
+		return chapterDetail{}, NewHTMLParseError(err, e.content)
 	}
 	chapterRule := e.chapterRule
 	name := doc.Find(chapterRule.Name).Text()
