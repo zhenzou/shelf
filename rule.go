@@ -22,15 +22,17 @@ type ListRule struct {
 }
 
 type BookRule struct {
-	Name        string
-	Author      string
-	Cover       string
-	Class       string
-	Introduce   string
-	ChapterList string
+	Name      string
+	Author    string
+	Cover     string
+	Class     string
+	Introduce string
+	URL       string
+	Chapter   ChapterRule
 }
 
 type ChapterRule struct {
+	List    string
 	Name    string
 	URL     string
 	Content string
@@ -38,5 +40,5 @@ type ChapterRule struct {
 
 type Args struct {
 	Name string
-	Page string
+	Page int64
 }

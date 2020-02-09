@@ -2,6 +2,7 @@ package shelf
 
 import (
 	"compress/gzip"
+	"context"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -11,11 +12,12 @@ type executor struct {
 	client http.Client
 }
 
-func (e executor) Exec(req Request) (Response, error) {
-	request, err := http.NewRequest(req.Method, req.URL, nil)
+func (e executor) Exec(ctx context.Context, req Request) (Response, error) {
+	request, err := req.BuildRequest()
 	if err != nil {
 		return Response{}, NewExecutorParseError(err, req)
 	}
+	request = request.WithContext(ctx)
 	resp, err := e.client.Do(request)
 	if err != nil {
 		return Response{}, NewExecutorParseError(err, req)
@@ -32,5 +34,5 @@ func (e executor) Exec(req Request) (Response, error) {
 	if err != nil {
 		return Response{}, NewExecutorParseError(err, req)
 	}
-	return Response{req, data}, nil
+	return Response{req, resp, data}, nil
 }
