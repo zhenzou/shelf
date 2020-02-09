@@ -109,7 +109,7 @@ func GetBook(source shelf.Source) {
 }
 
 func Search(source shelf.Source) {
-	books, err := source.Search(context.Background(), "斗罗")
+	books, err := source.Search(context.Background(), "斗罗大陆")
 	if err != nil {
 		println("err:", err.Error())
 	} else {

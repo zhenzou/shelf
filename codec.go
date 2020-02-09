@@ -1,8 +1,9 @@
 package shelf
 
 import (
-	"golang.org/x/text/encoding/simplifiedchinese"
 	"strings"
+
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 func decode(encoding string, data []byte) ([]byte, error) {
