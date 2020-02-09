@@ -2,6 +2,7 @@ package shelf
 
 import (
 	"context"
+	"strings"
 )
 
 func NewSource(rule SourceRule, executor Executor, builder Extractor) Source {
@@ -35,7 +36,29 @@ func (s *source) GetBookDetail(ctx context.Context, url string) (bookDetail, err
 	if err != nil {
 		return bookDetail{}, err
 	}
-	return s.extractor.ExtractBook(s.rule.Rules.Book, url, response.Data)
+	book, err := s.extractor.ExtractBook(s.rule.Rules.Book, url, response.Data)
+	if err != nil {
+		return bookDetail{}, err
+	}
+
+	for i, chapter := range book.Chapters {
+		if !s.isFullURL(chapter.URL) {
+			chapter.URL = s.buildFullURL(s.rule.BaseURL, chapter.URL)
+			book.Chapters[i] = chapter
+		}
+	}
+	return book, err
+}
+
+func (s *source) buildFullURL(baseURL, url string) string {
+	if strings.HasPrefix(url, "/") {
+		return baseURL + url
+	}
+	return baseURL + "/" + url
+}
+
+func (s *source) isFullURL(url string) bool {
+	return strings.HasPrefix(url, "https://") || strings.HasPrefix(url, "http://")
 }
 
 func (s *source) GetChapterDetail(ctx context.Context, url string) (chapterDetail, error) {

@@ -57,7 +57,7 @@ func (e extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book,
 		book := e.extractBook(elm, rule.Book)
 		if rule.Chapter.URL.Selector != "" {
 			chapter := e.extractChapter(elm, rule.Chapter)
-			book.chapter = &chapter
+			book.Chapter = &chapter
 		}
 		books = append(books, book)
 	})

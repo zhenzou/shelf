@@ -97,25 +97,24 @@ func GetBook(source shelf.Source) {
 	if err != nil {
 		println("err:", err.Error())
 	} else {
-		println(book.Name())
-		println(book.Author())
-		println(book.Introduce())
+		println(book.Name)
+		println(book.Author)
+		println(book.Introduce)
 
-		chapters := book.Chapters()
+		chapters := book.Chapters
 		for _, chapter := range chapters {
-			println(fmt.Sprintf("chapter:%s url:%s", chapter.Name(), chapter.URL()))
+			println(fmt.Sprintf("chapter:%s url:%s", chapter.Name, chapter.URL))
 		}
 	}
 }
 
 func Search(source shelf.Source) {
-	books, err := source.Search(context.Background(), "斗罗大陆")
+	books, err := source.Search(context.Background(), "斗罗")
 	if err != nil {
 		println("err:", err.Error())
 	} else {
-
 		for _, book := range books {
-			println(fmt.Sprintf("%s %s %s", book.Name(), book.Author(), book.Introduce()))
+			println(fmt.Sprintf("%s %s %s", book.Name, book.Author, book.Introduce))
 		}
 	}
 }

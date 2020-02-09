@@ -2,9 +2,6 @@ package shelf
 
 import (
 	"context"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 type SourceArgs struct {
@@ -43,25 +40,6 @@ type Extractor interface {
 	ExtractBook(rule BookRule, url string, html []byte) (bookDetail, error)
 	ExtractChapter(rule ChapterRule, url string, html []byte) (chapterDetail, error)
 	ExtractBooks(rule ListRule, url string, html []byte) ([]book, error)
-}
-
-type Request struct {
-	Method   string
-	URL      string
-	Args     Args
-}
-
-func (req Request) BuildRequest() (*http.Request, error) {
-	url := req.URL
-	url = strings.ReplaceAll(url, "${name}", req.Args.Name)
-	url = strings.ReplaceAll(url, "${page}", strconv.FormatUint(req.Args.Page, 10))
-	return http.NewRequest(req.Method, url, nil)
-}
-
-type Response struct {
-	Request     Request
-	RawResponse *http.Response
-	Data        []byte
 }
 
 type Executor interface {
