@@ -16,29 +16,43 @@ type SourceRule struct {
 
 type ListRule struct {
 	URL     string
-	List    string
+	List    TextRule
 	Book    BookRule
 	Chapter ChapterRule
 }
 
 type BookRule struct {
-	Name      string
-	Author    string
-	Cover     string
-	Class     string
-	Introduce string
-	URL       string
+	Name      TextRule
+	Author    TextRule
+	Cover     TextRule
+	Class     TextRule
+	Introduce TextRule
+	URL       TextRule
+	Update    TimeRule
 	Chapter   ChapterRule
 }
 
 type ChapterRule struct {
-	List    string
-	Name    string
-	URL     string
-	Content string
+	List    TextRule
+	Name    TextRule
+	URL     TextRule
+	Content TextRule
+}
+
+type TextRule struct {
+	Selector string
+	Attr     string
+	Regexp   string
+	Remove   string
+}
+
+type TimeRule struct {
+	Selector string
+	Attr     string
+	Format   string
 }
 
 type Args struct {
 	Name string
-	Page int64
+	Page uint64
 }

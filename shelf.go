@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-func New(executor Executor, extractor Extractor) Shelf {
+func New(executor Executor) Shelf {
 	return &shelf{
 		sources:  map[string]Source{},
 		executor: executor,

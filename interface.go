@@ -2,8 +2,9 @@ package shelf
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type SourceArgs struct {
@@ -52,8 +53,8 @@ type Request struct {
 
 func (req Request) BuildRequest() (*http.Request, error) {
 	url := req.URL
-	url = fmt.Sprintf("${name}", req.Args.Name)
-	url = fmt.Sprintf("${page}", req.Args.Page)
+	url = strings.ReplaceAll(url, "${name}", req.Args.Name)
+	url = strings.ReplaceAll(url, "${page}", strconv.FormatUint(req.Args.Page, 10))
 	return http.NewRequest(req.Method, url, nil)
 }
 

@@ -2,9 +2,15 @@ package shelf
 
 import (
 	"bytes"
+	"regexp"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
+
+func DefaultExtractor() Extractor {
+	return &extractor{}
+}
 
 type extractor struct {
 }
@@ -20,7 +26,7 @@ func (e extractor) ExtractBook(rule BookRule, url string, html []byte) (bookDeta
 
 	chapters := []chapter{}
 
-	doc.Find(rule.Chapter.List).Each(func(i int, elm *goquery.Selection) {
+	doc.Find(rule.Chapter.List.Selector).Each(func(i int, elm *goquery.Selection) {
 		chapter := e.extractChapter(elm, rule.Chapter)
 		chapters = append(chapters, chapter)
 	})
@@ -47,9 +53,9 @@ func (e extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book,
 	}
 	books := []book{}
 
-	doc.Find(rule.List).Each(func(i int, elm *goquery.Selection) {
+	doc.Find(rule.List.Selector).Each(func(i int, elm *goquery.Selection) {
 		book := e.extractBook(elm, rule.Book)
-		if rule.Chapter.URL != "" {
+		if rule.Chapter.URL.Selector != "" {
 			chapter := e.extractChapter(elm, rule.Chapter)
 			book.chapter = &chapter
 		}
@@ -73,16 +79,27 @@ func (e extractor) extractChapter(elm *goquery.Selection, rule ChapterRule) chap
 	return NewChapter(name, url)
 }
 
-func (e extractor) text(doc *goquery.Selection, selector string) (text string) {
-	if selector != "" {
-		return doc.Find(selector).Text()
+func (e extractor) text(doc *goquery.Selection, rule TextRule) (value string) {
+	if rule.Selector != "" {
+		elm := doc.Find(rule.Selector)
+		if rule.Attr == "text" {
+			value = elm.Text()
+		} else {
+			attr, _ := elm.Attr(rule.Attr)
+			value = attr
+		}
 	}
-	return ""
-}
-
-func (e extractor) attr(doc *goquery.Selection, selector, attr string) (value string, existed bool) {
-	if selector != "" {
-		return doc.Find(selector).Attr(attr)
+	if rule.Regexp != "" {
+		reg, err := regexp.Compile(rule.Regexp)
+		if err == nil {
+			match := reg.FindSubmatch([]byte(value))
+			if len(match) > 1 {
+				value = string(match[1])
+			}
+		}
 	}
-	return "", false
+	if rule.Remove != "" {
+		value = strings.ReplaceAll(value, rule.Remove, "")
+	}
+	return strings.TrimSpace(value)
 }

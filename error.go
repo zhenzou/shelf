@@ -4,29 +4,29 @@ import (
 	"fmt"
 )
 
-type Error struct {
+type BaseError struct {
 	Type  string
 	Cause error
 	Scene interface{}
 }
 
-func (e *Error) Error() string {
+func (e *BaseError) Error() string {
 	return fmt.Sprintf("error type:%s\ncause:%s\nscene:%v\n", e.Type, e.Cause.Error(), e.Scene)
 }
 
-func (e *Error) Is(err error) bool {
-	if other, ok := err.(*Error); ok {
+func (e *BaseError) Is(err error) bool {
+	if other, ok := err.(*BaseError); ok {
 		return other.Type == other.Type
 	}
 	return false
 }
 
 type HTMLParseError struct {
-	Error
+	BaseError
 }
 
 func NewHTMLParseError(err error, html []byte) error {
-	return &HTMLParseError{Error{
+	return &HTMLParseError{BaseError{
 		Type:  "parse_html_error",
 		Cause: err,
 		Scene: string(html),
@@ -34,12 +34,12 @@ func NewHTMLParseError(err error, html []byte) error {
 }
 
 type ExecutorError struct {
-	Error
+	BaseError
 }
 
 
 func NewExecutorParseError(err error, req Request) error {
-	return &ExecutorError{Error{
+	return &ExecutorError{BaseError{
 		Type:  "executor_error",
 		Cause: err,
 		Scene: req,
