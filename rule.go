@@ -1,12 +1,13 @@
 package shelf
 
 type SourceRule struct {
-	Name    string
-	BaseURL string
-	Tags    []string
-	Order   int
-	Enable  bool
-	Rules   struct {
+	Enable   bool
+	Encoding string
+	Name     string
+	BaseURL  string
+	Tags     []string
+	Order    int
+	Rules struct {
 		Index   ListRule
 		Search  ListRule
 		Book    BookRule

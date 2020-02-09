@@ -81,7 +81,7 @@ func (e extractor) extractChapter(elm *goquery.Selection, rule ChapterRule) chap
 
 func (e extractor) text(doc *goquery.Selection, rule TextRule) (value string) {
 	if rule.Selector != "" {
-		elm := doc.Find(rule.Selector)
+		elm := doc.Find(rule.Selector).First()
 		if rule.Attr == "text" {
 			value = elm.Text()
 		} else {

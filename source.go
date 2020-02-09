@@ -31,11 +31,19 @@ func (s *source) GetBookDetail(ctx context.Context, url string) (bookDetail, err
 	if err != nil {
 		return bookDetail{}, err
 	}
+	response.Data, err = decode(s.rule.Encoding, response.Data)
+	if err != nil {
+		return bookDetail{}, err
+	}
 	return s.extractor.ExtractBook(s.rule.Rules.Book, url, response.Data)
 }
 
 func (s *source) GetChapterDetail(ctx context.Context, url string) (chapterDetail, error) {
 	response, err := s.executor.Exec(ctx, Request{Method: "GET", URL: url})
+	if err != nil {
+		return chapterDetail{}, err
+	}
+	response.Data, err = decode(s.rule.Encoding, response.Data)
 	if err != nil {
 		return chapterDetail{}, err
 	}
@@ -47,8 +55,16 @@ func (s *source) Search(ctx context.Context, name string) ([]book, error) {
 	if url == "" {
 		return nil, nil
 	}
-	args := Args{Name: name, Page: 1}
+	bytes, err := encode(s.rule.Encoding, []byte(name))
+	if err != nil {
+		return nil, err
+	}
+	args := Args{Name: string(bytes), Page: 1}
 	response, err := s.executor.Exec(ctx, Request{"GET", url, args})
+	if err != nil {
+		return nil, err
+	}
+	response.Data, err = decode(s.rule.Encoding, response.Data)
 	if err != nil {
 		return nil, err
 	}

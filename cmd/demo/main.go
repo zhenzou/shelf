@@ -9,27 +9,43 @@ import (
 )
 
 var rule = shelf.SourceRule{
-	Name:    "奇书网",
-	BaseURL: "https://www.126shu.co",
-	Tags:    []string{"网络小说"},
-	Order:   0,
-	Enable:  true,
+	Name:     "奇书网",
+	BaseURL:  "https://www.126shu.co",
+	Tags:     []string{"网络小说"},
+	Order:    0,
+	Encoding: "gbk",
+	Enable:   true,
 }
 
 func init() {
 	rule.Rules.Search = shelf.ListRule{
 		URL: "https://www.126shu.co/modules/article/search.php?s=12622474051500695548&orderby=1&show=title,bname,zuozhe,smalltext&myorder=1&searchkey=${name}",
 		List: shelf.TextRule{
-			Selector: "class.listBox@tag.li",
+			Selector: "body > div:nth-child(4) > div.list > div > ul > li",
 		},
 		Book: shelf.BookRule{
 			Name: shelf.TextRule{
-				Selector: "tag.a.0",
+				Selector: "a",
 				Attr:     "text",
 			},
 			Author: shelf.TextRule{
-				Selector: "class.s",
+				Selector: "div.s",
 				Attr:     "text",
+				Regexp:   ".*作者：(.+)大小",
+			},
+			Introduce: shelf.TextRule{
+				Selector: "div.u",
+				Attr:     "text",
+			},
+			Chapter: shelf.ChapterRule{
+				Name: shelf.TextRule{
+					Selector: "o > a",
+					Attr:     "text",
+				},
+				URL: shelf.TextRule{
+					Selector: "o > a",
+					Attr:     "href",
+				},
 			},
 		},
 		Chapter: shelf.ChapterRule{
@@ -76,24 +92,41 @@ func init() {
 	}
 }
 
+func GetBook(source shelf.Source) {
+	book, err := source.GetBookDetail(context.Background(), "https://www.126shu.co/90497/")
+	if err != nil {
+		println("err:", err.Error())
+	} else {
+		println(book.Name())
+		println(book.Author())
+		println(book.Introduce())
+
+		chapters := book.Chapters()
+		for _, chapter := range chapters {
+			println(fmt.Sprintf("chapter:%s url:%s", chapter.Name(), chapter.URL()))
+		}
+	}
+}
+
+func Search(source shelf.Source) {
+	books, err := source.Search(context.Background(), "斗罗大陆")
+	if err != nil {
+		println("err:", err.Error())
+	} else {
+
+		for _, book := range books {
+			println(fmt.Sprintf("%s %s %s", book.Name(), book.Author(), book.Introduce()))
+		}
+	}
+}
+
 func main() {
 	s := shelf.New(shelf.NewExecutor(http.DefaultClient))
 	s.AddSource(rule, shelf.DefaultExtractor())
 
 	source, ok := s.Source(shelf.WithName("奇书网"))
 	if ok {
-		book, err := source.GetBookDetail(context.Background(), "https://www.126shu.co/90497/")
-		if err != nil {
-			println("err:", err.Error())
-		} else {
-			println(book.Name())
-			println(book.Author())
-			println(book.Introduce())
-
-			chapters := book.Chapters()
-			for _, chapter := range chapters {
-				println(fmt.Sprintf("chapter:%s url:%s", chapter.Name(), chapter.URL()))
-			}
-		}
+		//GetBook(source)
+		Search(source)
 	}
 }

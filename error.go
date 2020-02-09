@@ -37,11 +37,22 @@ type ExecutorError struct {
 	BaseError
 }
 
-
-func NewExecutorParseError(err error, req Request) error {
+func NewExecutorError(err error, req Request) error {
 	return &ExecutorError{BaseError{
 		Type:  "executor_error",
 		Cause: err,
 		Scene: req,
+	}}
+}
+
+type UnsupportedEncodingError struct {
+	BaseError
+}
+
+func NewUnsupportedEncodingError(err error, encoding string) error {
+	return &UnsupportedEncodingError{BaseError{
+		Type:  "unsupported_encoding",
+		Cause: err,
+		Scene: encoding,
 	}}
 }

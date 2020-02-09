@@ -46,9 +46,9 @@ type Extractor interface {
 }
 
 type Request struct {
-	Method string
-	URL    string
-	Args   Args
+	Method   string
+	URL      string
+	Args     Args
 }
 
 func (req Request) BuildRequest() (*http.Request, error) {
