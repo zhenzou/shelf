@@ -36,7 +36,7 @@ func (e extractor) ExtractBook(rule BookRule, url string, html []byte) (bookDeta
 	return NewBookDetail(NewBook(name, url, author, introduce, &chapter), chapters), nil
 }
 
-func (e extractor) ExtractChapter(rule ChapterRule, url string, html []byte) (chapterDetail, error) {
+func (e *extractor) ExtractChapter(rule ChapterRule, url string, html []byte) (chapterDetail, error) {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(html))
 	if err != nil {
 		return chapterDetail{}, NewHTMLParseError(err, html)
@@ -48,7 +48,7 @@ func (e extractor) ExtractChapter(rule ChapterRule, url string, html []byte) (ch
 	return NewChapterDetail(chapter, content), nil
 }
 
-func (e extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book, error) {
+func (e *extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book, error) {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(html))
 	if err != nil {
 		return nil, NewHTMLParseError(err, html)
@@ -66,7 +66,7 @@ func (e extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book,
 	return books, nil
 }
 
-func (e extractor) extractBook(elm *goquery.Selection, rule BookRule) book {
+func (e *extractor) extractBook(elm *goquery.Selection, rule BookRule) book {
 	name := e.text(elm, rule.Name)
 	author := e.text(elm, rule.Author)
 	introduce := e.text(elm, rule.Introduce)
@@ -74,13 +74,13 @@ func (e extractor) extractBook(elm *goquery.Selection, rule BookRule) book {
 	return NewBook(name, url, author, introduce, nil)
 }
 
-func (e extractor) extractChapter(selection *goquery.Selection, rule ChapterRule) chapter {
+func (e *extractor) extractChapter(selection *goquery.Selection, rule ChapterRule) chapter {
 	name := e.text(selection, rule.Name)
 	url := e.text(selection, rule.URL)
 	return NewChapter(name, url)
 }
 
-func (e extractor) text(selection *goquery.Selection, rule TextRule) (value string) {
+func (e *extractor) text(selection *goquery.Selection, rule TextRule) (value string) {
 	if rule.Selector != "" {
 		elm := selection.Find(rule.Selector).First()
 		if rule.Attr == "text" {
@@ -104,7 +104,7 @@ func (e extractor) text(selection *goquery.Selection, rule TextRule) (value stri
 	return strings.TrimSpace(value)
 }
 
-func (e extractor) findMatchedString(reg *regexp.Regexp, str string) (string, bool) {
+func (e *extractor) findMatchedString(reg *regexp.Regexp, str string) (string, bool) {
 	match := reg.FindSubmatch([]byte(str))
 	if len(match) > 1 {
 		return string(match[1]), true
@@ -112,7 +112,7 @@ func (e extractor) findMatchedString(reg *regexp.Regexp, str string) (string, bo
 	return "", false
 }
 
-func (e extractor) getOrCreateReg(pattern string) (reg *regexp.Regexp, ok bool) {
+func (e *extractor) getOrCreateReg(pattern string) (reg *regexp.Regexp, ok bool) {
 	if IsBlank(pattern) {
 		return nil, false
 	}
