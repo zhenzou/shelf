@@ -20,7 +20,7 @@ var rule = shelf.SourceRule{
 func init() {
 	rule.Rules.Search = shelf.ListRule{
 		URL: "https://www.126shu.co/modules/article/search.php?s=12622474051500695548&orderby=1&show=title,bname,zuozhe,smalltext&myorder=1&searchkey=${name}",
-		List: shelf.TextRule{
+		List: shelf.ElementRule{
 			Selector: "body > div:nth-child(4) > div.list > div > ul > li",
 		},
 		Book: shelf.BookRule{
@@ -46,12 +46,6 @@ func init() {
 					Selector: "o > a",
 					Attr:     "href",
 				},
-			},
-		},
-		Chapter: shelf.ChapterRule{
-			Name: shelf.TextRule{
-				Selector: "tag.a.1",
-				Attr:     "text",
 			},
 		},
 	}
@@ -87,7 +81,18 @@ func init() {
 				Selector: "a",
 				Attr:     "href",
 			},
-			Content: shelf.TextRule{},
+		},
+	}
+
+	rule.Rules.Chapter = shelf.ChapterRule{
+		Name: shelf.TextRule{
+			Selector: "#info > div.hh",
+			Attr:     "text",
+		},
+		Content: shelf.TextRule{
+			Selector: "#content",
+			Attr:     "text",
+			Remove:   "www.126shu.co",
 		},
 	}
 }
@@ -104,6 +109,14 @@ func GetBook(source shelf.Source) {
 		chapters := book.Chapters
 		for _, chapter := range chapters {
 			println(fmt.Sprintf("chapter:%s url:%s", chapter.Name, chapter.URL))
+
+			detail, err := source.GetChapterDetail(context.Background(), chapter.URL)
+			if err != nil {
+				println("get book datail err:", err.Error())
+				return
+			}
+			println(detail.Content)
+			return
 		}
 	}
 }
@@ -125,7 +138,7 @@ func main() {
 
 	source, ok := s.Source(shelf.WithName("奇书网"))
 	if ok {
-		//GetBook(source)
-		Search(source)
+		GetBook(source)
+		//Search(source)
 	}
 }

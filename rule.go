@@ -7,17 +7,17 @@ type SourceRule struct {
 	BaseURL  string
 	Tags     []string
 	Order    int
-	Rules struct {
-		Index   ListRule
-		Search  ListRule
-		Book    BookRule
-		Chapter ChapterRule
+	Rules    struct {
+		Find    ListRule    // 发现
+		Search  ListRule    // 搜索
+		Book    BookRule    // 书籍详情
+		Chapter ChapterRule // 章节详情
 	}
 }
 
 type ListRule struct {
-	URL     string
-	List    TextRule
+	URL     string      // URL模版
+	List    ElementRule //
 	Book    BookRule
 	Chapter ChapterRule
 }
@@ -38,6 +38,10 @@ type ChapterRule struct {
 	Name    TextRule
 	URL     TextRule
 	Content TextRule
+}
+
+type ElementRule struct {
+	Selector string
 }
 
 type TextRule struct {
