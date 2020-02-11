@@ -22,9 +22,9 @@ func (e extractor) ExtractBook(rule BookRule, url string, html []byte) (bookDeta
 	if err != nil {
 		return bookDetail{}, NewHTMLParseError(err, html)
 	}
-	name := e.text(doc.Selection, rule.Name)
-	author := e.text(doc.Selection, rule.Author)
-	introduce := e.text(doc.Selection, rule.Introduce)
+	name := e.extractText(doc.Selection, rule.Name)
+	author := e.extractText(doc.Selection, rule.Author)
+	introduce := e.extractText(doc.Selection, rule.Introduce)
 
 	chapters := []chapter{}
 
@@ -41,11 +41,12 @@ func (e *extractor) ExtractChapter(rule ChapterRule, url string, html []byte) (c
 	if err != nil {
 		return chapterDetail{}, NewHTMLParseError(err, html)
 	}
-	name := e.text(doc.Selection, rule.Name)
-	content := e.text(doc.Selection, rule.Content)
+	name := e.extractText(doc.Selection, rule.Name)
+	content := e.extractText(doc.Selection, rule.Content)
+	next := e.extractText(doc.Selection, rule.NextURL)
 
 	chapter := NewChapter(name, url)
-	return NewChapterDetail(chapter, content), nil
+	return NewChapterDetail(chapter, content, next), nil
 }
 
 func (e *extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book, error) {
@@ -59,7 +60,7 @@ func (e *extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book
 		book := e.extractBook(elm, rule.Book)
 		if rule.Chapter.URL.Selector != "" {
 			chapter := e.extractChapter(elm, rule.Chapter)
-			book.Chapter = &chapter
+			book.LatestChapter = &chapter
 		}
 		books = append(books, book)
 	})
@@ -67,20 +68,20 @@ func (e *extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book
 }
 
 func (e *extractor) extractBook(elm *goquery.Selection, rule BookRule) book {
-	name := e.text(elm, rule.Name)
-	author := e.text(elm, rule.Author)
-	introduce := e.text(elm, rule.Introduce)
-	url := e.text(elm, rule.URL)
+	name := e.extractText(elm, rule.Name)
+	author := e.extractText(elm, rule.Author)
+	introduce := e.extractText(elm, rule.Introduce)
+	url := e.extractText(elm, rule.URL)
 	return NewBook(name, url, author, introduce, nil)
 }
 
 func (e *extractor) extractChapter(selection *goquery.Selection, rule ChapterRule) chapter {
-	name := e.text(selection, rule.Name)
-	url := e.text(selection, rule.URL)
+	name := e.extractText(selection, rule.Name)
+	url := e.extractText(selection, rule.URL)
 	return NewChapter(name, url)
 }
 
-func (e *extractor) text(selection *goquery.Selection, rule TextRule) (value string) {
+func (e *extractor) extractText(selection *goquery.Selection, rule TextRule) (value string) {
 	if rule.Selector != "" {
 		elm := selection.Find(rule.Selector).First()
 		if rule.Attr == "text" {

@@ -1,9 +1,9 @@
 package shelf
 
 type SourceRule struct {
+	Name     string
 	Enable   bool
 	Encoding string
-	Name     string
 	BaseURL  string
 	Tags     []string
 	Order    int
@@ -38,6 +38,7 @@ type ChapterRule struct {
 	Name    TextRule
 	URL     TextRule
 	Content TextRule
+	NextURL TextRule
 }
 
 type ElementRule struct {

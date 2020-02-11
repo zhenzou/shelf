@@ -1,21 +1,24 @@
 package shelf
 
+import "time"
+
 func NewBook(name, url, author, introduce string, chapter *chapter) book {
 	return book{
-		Name:      name,
-		URL:       url,
-		Author:    author,
-		Introduce: introduce,
-		Chapter:   chapter,
+		Name:          name,
+		URL:           url,
+		Author:        author,
+		Introduce:     introduce,
+		LatestChapter: chapter,
 	}
 }
 
 type book struct {
-	Name      string
-	URL       string
-	Author    string
-	Introduce string
-	Chapter   *chapter
+	Name             string
+	URL              string
+	Author           string
+	Introduce        string
+	LatestChapter    *chapter
+	LatestUpdateTime *time.Time
 }
 
 func NewBookDetail(book book, chapters []chapter) bookDetail {

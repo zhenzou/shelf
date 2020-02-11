@@ -42,15 +42,18 @@ func (s *source) GetBookDetail(ctx context.Context, url string) (bookDetail, err
 	}
 
 	for i, chapter := range book.Chapters {
-		if !s.isFullURL(chapter.URL) {
-			chapter.URL = s.buildFullURL(s.rule.BaseURL, chapter.URL)
-			book.Chapters[i] = chapter
-		}
+		chapter.URL = s.buildFullURL(chapter.URL)
+		book.Chapters[i] = chapter
 	}
 	return book, err
 }
 
-func (s *source) buildFullURL(baseURL, url string) string {
+func (s *source) buildFullURL(url string) string {
+	if s.isFullURL(url) {
+		return url
+	}
+
+	baseURL := s.rule.BaseURL
 	if strings.HasPrefix(url, "/") {
 		return baseURL + url
 	}
@@ -70,7 +73,12 @@ func (s *source) GetChapterDetail(ctx context.Context, url string) (chapterDetai
 	if err != nil {
 		return chapterDetail{}, err
 	}
-	return s.extractor.ExtractChapter(s.rule.Rules.Chapter, url, response.Data)
+	detail, err := s.extractor.ExtractChapter(s.rule.Rules.Chapter, url, response.Data)
+	if err != nil {
+		return chapterDetail{}, err
+	}
+	detail.Next = s.buildFullURL(detail.Next)
+	return detail, err
 }
 
 func (s *source) Search(ctx context.Context, name string) ([]book, error) {
