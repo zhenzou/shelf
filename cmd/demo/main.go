@@ -75,7 +75,9 @@ func init() {
 			Name: shelf.TextRule{
 				Selector: "a",
 				Attr:     "text",
-				Remove:   "[www.126shu.co]",
+				Clean: shelf.CleanRule{
+					Texts: "[www.126shu.co]",
+				},
 			},
 			URL: shelf.TextRule{
 				Selector: "a",
@@ -92,7 +94,10 @@ func init() {
 		Content: shelf.TextRule{
 			Selector: "#content",
 			Attr:     "text",
-			Remove:   "www.126shu.co",
+			Clean: shelf.CleanRule{
+				Texts:     "www.126shu.co",
+				Selectors: "div.zjtj;div.zjxs",
+			},
 		},
 	}
 }

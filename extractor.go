@@ -98,10 +98,31 @@ func (e *extractor) text(selection *goquery.Selection, rule TextRule) (value str
 		}
 	}
 
-	if rule.Remove != "" {
-		value = strings.ReplaceAll(value, rule.Remove, "")
+	return e.cleanText(rule.Clean, selection, value)
+}
+
+func (e *extractor) cleanText(rule CleanRule, selection *goquery.Selection, text string) string {
+
+	if IsNotBlank(rule.Texts) {
+		strs := strings.Split(rule.Texts, ";")
+		for _, str := range strs {
+			if IsBlank(str) {
+				continue
+			}
+			text = strings.ReplaceAll(text, str, "")
+		}
 	}
-	return strings.TrimSpace(value)
+	if IsNotBlank(rule.Selectors) {
+		selectors := strings.Split(rule.Selectors, ";")
+		for _, selector := range selectors {
+			if IsBlank(selector) {
+				continue
+			}
+			text = strings.ReplaceAll(text, selection.Find(selector).Text(), "")
+		}
+	}
+
+	return text
 }
 
 func (e *extractor) findMatchedString(reg *regexp.Regexp, str string) (string, bool) {

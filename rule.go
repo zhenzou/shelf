@@ -48,13 +48,18 @@ type TextRule struct {
 	Selector string
 	Attr     string
 	Regexp   string
-	Remove   string
+	Clean    CleanRule
 }
 
 type TimeRule struct {
 	Selector string
 	Attr     string
 	Format   string
+}
+
+type CleanRule struct {
+	Texts     string
+	Selectors string
 }
 
 type Args struct {
