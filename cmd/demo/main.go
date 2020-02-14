@@ -95,7 +95,7 @@ func init() {
 			Rule: "#content",
 			Attr: "text",
 			Clean: shelf.CleanRule{
-				Regexps: "www.126shu.co;-----网友请提示:长时间阅读请注意眼睛的休息。：; ----这是华丽的分割线---</i>",
+				Regexps: "www.126shu.co;\\s*-----网友请提示:长时间阅读请注意眼睛的休息。：\\s*; \\S*----这是华丽的分割线---</i>\\s*",
 				Rules:   "div.zjtj;div.zjxs",
 			},
 		},

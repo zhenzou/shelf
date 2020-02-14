@@ -2,6 +2,7 @@ package shelf
 
 import (
 	"strings"
+	"unicode"
 )
 
 func IsBlank(str string) bool {
@@ -45,4 +46,39 @@ func Split(s string, sep rune) []string {
 	}
 
 	return strs
+}
+
+// Clean: remove useless new line
+func Clean(s string) string {
+	sb := strings.Builder{}
+	sb.Grow(len(s))
+	var prev rune
+	for _, r := range s {
+		if r == '\n' {
+			if prev == '\n' {
+				continue
+			}
+		}
+		prev = r
+		sb.WriteRune(r)
+	}
+	return sb.String()
+}
+
+// Compress: remove useless new line
+func Compress(s string) string {
+	sb := strings.Builder{}
+	sb.Grow(len(s))
+	var prev bool
+	for _, r := range s {
+		cur := unicode.IsSpace(r)
+		if cur {
+			if prev {
+				continue
+			}
+		}
+		prev = cur
+		sb.WriteRune(r)
+	}
+	return sb.String()
 }
