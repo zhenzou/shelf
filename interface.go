@@ -13,9 +13,9 @@ type Source interface {
 }
 
 type Extractor interface {
-	ExtractBook(rule BookRule, url string, html []byte) (BookDetail, error)
-	ExtractChapter(rule ChapterRule, url string, html []byte) (ChapterDetail, error)
-	ExtractBooks(rule ListRule, url string, html []byte) ([]Book, error)
+	ExtractBook(rule BookRule, html []byte) (BookDetail, error)
+	ExtractChapter(rule ChapterRule, html []byte) (ChapterDetail, error)
+	ExtractBooks(rule ListRule, html []byte) ([]Book, error)
 }
 
 type Executor interface {

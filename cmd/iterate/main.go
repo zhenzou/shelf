@@ -54,7 +54,7 @@ func Iterate(source shelf.Source) {
 
 func main() {
 	s := shelf.New(shelf.NewExecutor(http.DefaultClient))
-	s.AddSource(rule, shelf.DefaultExtractor())
+	s.AddSource(rule, shelf.NewHTMLExtractor())
 
 	source, ok := s.Source("笔趣阁")
 	if ok {

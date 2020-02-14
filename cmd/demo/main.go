@@ -95,7 +95,7 @@ func init() {
 			Rule: "#content",
 			Attr: "text",
 			Clean: shelf.CleanRule{
-				Regexps: "www.126shu.co",
+				Regexps: "www.126shu.co;-----网友请提示:长时间阅读请注意眼睛的休息。：; ----这是华丽的分割线---</i>",
 				Rules:   "div.zjtj;div.zjxs",
 			},
 		},
@@ -139,7 +139,7 @@ func Search(source shelf.Source) {
 
 func main() {
 	s := shelf.New(shelf.NewExecutor(http.DefaultClient))
-	s.AddSource(rule, shelf.DefaultExtractor())
+	s.AddSource(rule, shelf.NewHTMLExtractor())
 
 	source, ok := s.Source("奇书网")
 	if ok {

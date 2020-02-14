@@ -36,11 +36,12 @@ func (s *source) GetBookDetail(ctx context.Context, url string) (BookDetail, err
 	if err != nil {
 		return BookDetail{}, err
 	}
-	book, err := s.extractor.ExtractBook(s.rule.Rules.Book, url, response.Data)
+	book, err := s.extractor.ExtractBook(s.rule.Rules.Book, response.Data)
 	if err != nil {
 		return BookDetail{}, err
 	}
 
+	book.URL = url
 	for i, chapter := range book.Chapters {
 		chapter.URL = s.buildFullURL(chapter.URL)
 		book.Chapters[i] = chapter
@@ -73,10 +74,11 @@ func (s *source) GetChapterDetail(ctx context.Context, url string) (ChapterDetai
 	if err != nil {
 		return ChapterDetail{}, err
 	}
-	detail, err := s.extractor.ExtractChapter(s.rule.Rules.Chapter, url, response.Data)
+	detail, err := s.extractor.ExtractChapter(s.rule.Rules.Chapter, response.Data)
 	if err != nil {
 		return ChapterDetail{}, err
 	}
+	detail.URL = url
 	detail.NextURL = s.buildFullURL(detail.NextURL)
 	return detail, err
 }
@@ -99,5 +101,5 @@ func (s *source) Search(ctx context.Context, name string) ([]Book, error) {
 	if err != nil {
 		return nil, err
 	}
-	return s.extractor.ExtractBooks(s.rule.Rules.Search, url, response.Data)
+	return s.extractor.ExtractBooks(s.rule.Rules.Search, response.Data)
 }

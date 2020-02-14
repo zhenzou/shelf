@@ -11,7 +11,7 @@ type BaseError struct {
 }
 
 func (e *BaseError) Error() string {
-	return fmt.Sprintf("error type:%s\ncause:%s\nscene:%v\n", e.Type, e.Cause.Error(), e.Scene)
+	return fmt.Sprintf("error type:%s\ncause:%v\nscene:%v\n", e.Type, e.Cause, e.Scene)
 }
 
 func (e *BaseError) Is(err error) bool {
@@ -54,5 +54,17 @@ func NewUnsupportedEncodingError(err error, encoding string) error {
 		Type:  "unsupported_encoding",
 		Cause: err,
 		Scene: encoding,
+	}}
+}
+
+type UnknownExtractorError struct {
+	BaseError
+}
+
+func NewUnknownExtractorError(err error, extractor string) error {
+	return &UnsupportedEncodingError{BaseError{
+		Type:  "unknown_extractor",
+		Cause: err,
+		Scene: extractor,
 	}}
 }

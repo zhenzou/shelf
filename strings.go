@@ -1,6 +1,8 @@
 package shelf
 
-import "strings"
+import (
+	"strings"
+)
 
 func IsBlank(str string) bool {
 	return strings.TrimSpace(str) == ""
