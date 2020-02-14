@@ -17,18 +17,18 @@ type extractor struct {
 	regCache sync.Map
 }
 
-func (e extractor) ExtractBook(rule BookRule, url string, html []byte) (bookDetail, error) {
+func (e extractor) ExtractBook(rule BookRule, url string, html []byte) (BookDetail, error) {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(html))
 	if err != nil {
-		return bookDetail{}, NewHTMLParseError(err, html)
+		return BookDetail{}, NewHTMLParseError(err, html)
 	}
 	name := e.extractText(doc.Selection, rule.Name)
 	author := e.extractText(doc.Selection, rule.Author)
 	introduce := e.extractText(doc.Selection, rule.Introduce)
 
-	chapters := []chapter{}
+	chapters := []Chapter{}
 
-	doc.Find(rule.Chapter.List.Selector).Each(func(i int, elm *goquery.Selection) {
+	doc.Find(rule.Chapter.List.Rule).Each(func(i int, elm *goquery.Selection) {
 		chapter := e.extractChapter(elm, rule.Chapter)
 		chapters = append(chapters, chapter)
 	})
@@ -36,10 +36,10 @@ func (e extractor) ExtractBook(rule BookRule, url string, html []byte) (bookDeta
 	return NewBookDetail(NewBook(name, url, author, introduce, &chapter), chapters), nil
 }
 
-func (e *extractor) ExtractChapter(rule ChapterRule, url string, html []byte) (chapterDetail, error) {
+func (e *extractor) ExtractChapter(rule ChapterRule, url string, html []byte) (ChapterDetail, error) {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(html))
 	if err != nil {
-		return chapterDetail{}, NewHTMLParseError(err, html)
+		return ChapterDetail{}, NewHTMLParseError(err, html)
 	}
 	name := e.extractText(doc.Selection, rule.Name)
 	content := e.extractText(doc.Selection, rule.Content)
@@ -49,16 +49,16 @@ func (e *extractor) ExtractChapter(rule ChapterRule, url string, html []byte) (c
 	return NewChapterDetail(chapter, content, next), nil
 }
 
-func (e *extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book, error) {
+func (e *extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]Book, error) {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(html))
 	if err != nil {
 		return nil, NewHTMLParseError(err, html)
 	}
-	books := []book{}
+	books := []Book{}
 
-	doc.Find(rule.List.Selector).Each(func(i int, elm *goquery.Selection) {
+	doc.Find(rule.List.Rule).Each(func(i int, elm *goquery.Selection) {
 		book := e.extractBook(elm, rule.Book)
-		if rule.Chapter.URL.Selector != "" {
+		if rule.Chapter.URL.Rule != "" {
 			chapter := e.extractChapter(elm, rule.Chapter)
 			book.LatestChapter = &chapter
 		}
@@ -67,7 +67,7 @@ func (e *extractor) ExtractBooks(rule ListRule, url string, html []byte) ([]book
 	return books, nil
 }
 
-func (e *extractor) extractBook(elm *goquery.Selection, rule BookRule) book {
+func (e *extractor) extractBook(elm *goquery.Selection, rule BookRule) Book {
 	name := e.extractText(elm, rule.Name)
 	author := e.extractText(elm, rule.Author)
 	introduce := e.extractText(elm, rule.Introduce)
@@ -75,15 +75,15 @@ func (e *extractor) extractBook(elm *goquery.Selection, rule BookRule) book {
 	return NewBook(name, url, author, introduce, nil)
 }
 
-func (e *extractor) extractChapter(selection *goquery.Selection, rule ChapterRule) chapter {
+func (e *extractor) extractChapter(selection *goquery.Selection, rule ChapterRule) Chapter {
 	name := e.extractText(selection, rule.Name)
 	url := e.extractText(selection, rule.URL)
 	return NewChapter(name, url)
 }
 
 func (e *extractor) extractText(selection *goquery.Selection, rule TextRule) (value string) {
-	if rule.Selector != "" {
-		elm := selection.Find(rule.Selector).First()
+	if rule.Rule != "" {
+		elm := selection.Find(rule.Rule).First()
 		if rule.Attr == "text" {
 			value = elm.Text()
 		} else {
@@ -104,17 +104,18 @@ func (e *extractor) extractText(selection *goquery.Selection, rule TextRule) (va
 
 func (e *extractor) cleanText(rule CleanRule, selection *goquery.Selection, text string) string {
 
-	if IsNotBlank(rule.Texts) {
-		strs := strings.Split(rule.Texts, ";")
-		for _, str := range strs {
-			if IsBlank(str) {
+	if IsNotBlank(rule.Regexps) {
+		patterns := Split(rule.Regexps, ';')
+		for _, pattern := range patterns {
+			reg, ok := e.getOrCreateReg(pattern)
+			if !ok {
 				continue
 			}
-			text = strings.ReplaceAll(text, str, "")
+			text = reg.ReplaceAllString(text, "")
 		}
 	}
-	if IsNotBlank(rule.Selectors) {
-		selectors := strings.Split(rule.Selectors, ";")
+	if IsNotBlank(rule.Rules) {
+		selectors := strings.Split(rule.Rules, ";")
 		for _, selector := range selectors {
 			if IsBlank(selector) {
 				continue

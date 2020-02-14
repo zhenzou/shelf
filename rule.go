@@ -42,25 +42,25 @@ type ChapterRule struct {
 }
 
 type ElementRule struct {
-	Selector string
+	Rule string
 }
 
 type TextRule struct {
-	Selector string
-	Attr     string
-	Regexp   string
-	Clean    CleanRule
+	Rule   string
+	Attr   string
+	Regexp string
+	Clean  CleanRule
 }
 
 type TimeRule struct {
-	Selector string
-	Attr     string
-	Format   string
+	Rule   string
+	Attr   string
+	Format string
 }
 
 type CleanRule struct {
-	Texts     string
-	Selectors string
+	Regexps string
+	Rules   string
 }
 
 type Args struct {

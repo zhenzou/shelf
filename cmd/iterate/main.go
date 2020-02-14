@@ -20,20 +20,20 @@ func init() {
 
 	rule.Rules.Chapter = shelf.ChapterRule{
 		Name: shelf.TextRule{
-			Selector: "#chaptercontent > div > span",
-			Attr:     "text",
+			Rule: "#chaptercontent > div > span",
+			Attr: "text",
 			Clean: shelf.CleanRule{
-				Texts:     ".点击下一页继续阅读",
-				Selectors: "",
+				Regexps: ".点击下一页继续阅读",
+				Rules:   "",
 			},
 		},
 		Content: shelf.TextRule{
-			Selector: "p.Readpage:nth-child(13) > a:nth-child(3)",
-			Attr:     "text",
+			Rule: "p.Readpage:nth-child(13) > a:nth-child(3)",
+			Attr: "text",
 		},
 		NextURL: shelf.TextRule{
-			Selector: "#pt_next",
-			Attr:     "href",
+			Rule: "#pt_next",
+			Attr: "href",
 		},
 	}
 }
@@ -47,7 +47,7 @@ func Iterate(source shelf.Source) {
 			println("err:", err.Error())
 		} else {
 			println(fmt.Sprintf("%s:%s", chapter.Name, url))
-			url = chapter.Next
+			url = chapter.NextURL
 		}
 	}
 }
@@ -56,7 +56,7 @@ func main() {
 	s := shelf.New(shelf.NewExecutor(http.DefaultClient))
 	s.AddSource(rule, shelf.DefaultExtractor())
 
-	source, ok := s.Source(shelf.WithName("笔趣阁"))
+	source, ok := s.Source("笔趣阁")
 	if ok {
 		Iterate(source)
 	}

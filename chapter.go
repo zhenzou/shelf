@@ -1,27 +1,27 @@
 package shelf
 
-func NewChapter(name, url string) chapter {
-	return chapter{
+func NewChapter(name, url string) Chapter {
+	return Chapter{
 		Name: name,
 		URL:  url,
 	}
 }
 
-type chapter struct {
+type Chapter struct {
 	Name string
 	URL  string
 }
 
-func NewChapterDetail(chapter chapter, content, next string) chapterDetail {
-	return chapterDetail{
-		chapter: chapter,
+func NewChapterDetail(chapter Chapter, content, nextURL string) ChapterDetail {
+	return ChapterDetail{
+		Chapter: chapter,
 		Content: content,
-		Next:    next,
+		NextURL: nextURL,
 	}
 }
 
-type chapterDetail struct {
-	chapter
+type ChapterDetail struct {
+	Chapter
 	Content string
-	Next    string
+	NextURL string
 }

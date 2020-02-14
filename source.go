@@ -27,18 +27,18 @@ func (s *source) Rule() SourceRule {
 	return s.rule
 }
 
-func (s *source) GetBookDetail(ctx context.Context, url string) (bookDetail, error) {
+func (s *source) GetBookDetail(ctx context.Context, url string) (BookDetail, error) {
 	response, err := s.executor.Exec(ctx, Request{Method: "GET", URL: url})
 	if err != nil {
-		return bookDetail{}, err
+		return BookDetail{}, err
 	}
 	response.Data, err = decode(s.rule.Encoding, response.Data)
 	if err != nil {
-		return bookDetail{}, err
+		return BookDetail{}, err
 	}
 	book, err := s.extractor.ExtractBook(s.rule.Rules.Book, url, response.Data)
 	if err != nil {
-		return bookDetail{}, err
+		return BookDetail{}, err
 	}
 
 	for i, chapter := range book.Chapters {
@@ -64,24 +64,24 @@ func (s *source) isFullURL(url string) bool {
 	return strings.HasPrefix(url, "https://") || strings.HasPrefix(url, "http://")
 }
 
-func (s *source) GetChapterDetail(ctx context.Context, url string) (chapterDetail, error) {
+func (s *source) GetChapterDetail(ctx context.Context, url string) (ChapterDetail, error) {
 	response, err := s.executor.Exec(ctx, Request{Method: "GET", URL: url})
 	if err != nil {
-		return chapterDetail{}, err
+		return ChapterDetail{}, err
 	}
 	response.Data, err = decode(s.rule.Encoding, response.Data)
 	if err != nil {
-		return chapterDetail{}, err
+		return ChapterDetail{}, err
 	}
 	detail, err := s.extractor.ExtractChapter(s.rule.Rules.Chapter, url, response.Data)
 	if err != nil {
-		return chapterDetail{}, err
+		return ChapterDetail{}, err
 	}
-	detail.Next = s.buildFullURL(detail.Next)
+	detail.NextURL = s.buildFullURL(detail.NextURL)
 	return detail, err
 }
 
-func (s *source) Search(ctx context.Context, name string) ([]book, error) {
+func (s *source) Search(ctx context.Context, name string) ([]Book, error) {
 	url := s.rule.Rules.Search.URL
 	if url == "" {
 		return nil, nil

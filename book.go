@@ -2,8 +2,8 @@ package shelf
 
 import "time"
 
-func NewBook(name, url, author, introduce string, chapter *chapter) book {
-	return book{
+func NewBook(name, url, author, introduce string, chapter *Chapter) Book {
+	return Book{
 		Name:          name,
 		URL:           url,
 		Author:        author,
@@ -12,32 +12,32 @@ func NewBook(name, url, author, introduce string, chapter *chapter) book {
 	}
 }
 
-type book struct {
+type Book struct {
 	Name             string
 	URL              string
 	Author           string
 	Introduce        string
-	LatestChapter    *chapter
+	LatestChapter    *Chapter
 	LatestUpdateTime *time.Time
 }
 
-func NewBookDetail(book book, chapters []chapter) bookDetail {
-	return bookDetail{
-		book:     book,
+func NewBookDetail(book Book, chapters []Chapter) BookDetail {
+	return BookDetail{
+		Book:     book,
 		Chapters: chapters,
 	}
 }
 
-type bookDetail struct {
-	book
-	Chapters []chapter
+type BookDetail struct {
+	Book
+	Chapters []Chapter
 }
 
-func (b *bookDetail) ChapterAt(index int) chapter {
+func (b *BookDetail) ChapterAt(index int) Chapter {
 	return b.Chapters[index]
 }
 
-func (b *bookDetail) SearchChapter(name string) (*chapter, bool) {
+func (b *BookDetail) SearchChapter(name string) (*Chapter, bool) {
 	for _, chapter := range b.Chapters {
 		if chapter.Name == name {
 			return &chapter, true

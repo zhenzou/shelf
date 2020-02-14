@@ -4,42 +4,18 @@ import (
 	"context"
 )
 
-type SourceArgs struct {
-	Name string
-	URL  string
-}
-
-func WithName(name string) func(args *SourceArgs) {
-	return func(args *SourceArgs) {
-		args.Name = name
-	}
-}
-
-func WithURL(url string) func(args *SourceArgs) {
-	return func(args *SourceArgs) {
-		args.URL = url
-	}
-}
-
-type Shelf interface {
-	AddSource(rule SourceRule, extractor Extractor)
-	Sources() map[string]Source
-	Source(func(args *SourceArgs)) (Source, bool)
-	Search(ctx context.Context, name string) (map[string][]book, error)
-}
-
 type Source interface {
 	Name() string
 	Rule() SourceRule
-	GetBookDetail(ctx context.Context, url string) (bookDetail, error)
-	GetChapterDetail(ctx context.Context, url string) (chapterDetail, error)
-	Search(ctx context.Context, name string) ([]book, error)
+	GetBookDetail(ctx context.Context, url string) (BookDetail, error)
+	GetChapterDetail(ctx context.Context, url string) (ChapterDetail, error)
+	Search(ctx context.Context, name string) ([]Book, error)
 }
 
 type Extractor interface {
-	ExtractBook(rule BookRule, url string, html []byte) (bookDetail, error)
-	ExtractChapter(rule ChapterRule, url string, html []byte) (chapterDetail, error)
-	ExtractBooks(rule ListRule, url string, html []byte) ([]book, error)
+	ExtractBook(rule BookRule, url string, html []byte) (BookDetail, error)
+	ExtractChapter(rule ChapterRule, url string, html []byte) (ChapterDetail, error)
+	ExtractBooks(rule ListRule, url string, html []byte) ([]Book, error)
 }
 
 type Executor interface {

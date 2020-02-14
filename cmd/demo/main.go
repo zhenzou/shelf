@@ -21,82 +21,82 @@ func init() {
 	rule.Rules.Search = shelf.ListRule{
 		URL: "https://www.126shu.co/modules/article/search.php?s=12622474051500695548&orderby=1&show=title,bname,zuozhe,smalltext&myorder=1&searchkey=${name}",
 		List: shelf.ElementRule{
-			Selector: "body > div:nth-child(4) > div.list > div > ul > li",
+			Rule: "body > div:nth-child(4) > div.list > div > ul > li",
 		},
 		Book: shelf.BookRule{
 			Name: shelf.TextRule{
-				Selector: "a",
-				Attr:     "text",
+				Rule: "a",
+				Attr: "text",
 			},
 			Author: shelf.TextRule{
-				Selector: "div.s",
-				Attr:     "text",
-				Regexp:   ".*作者：(.+)大小",
+				Rule:   "div.s",
+				Attr:   "text",
+				Regexp: ".*作者：(.+)大小",
 			},
 			Introduce: shelf.TextRule{
-				Selector: "div.u",
-				Attr:     "text",
+				Rule: "div.u",
+				Attr: "text",
 			},
 			Chapter: shelf.ChapterRule{
 				Name: shelf.TextRule{
-					Selector: "o > a",
-					Attr:     "text",
+					Rule: "o > a",
+					Attr: "text",
 				},
 				URL: shelf.TextRule{
-					Selector: "o > a",
-					Attr:     "href",
+					Rule: "o > a",
+					Attr: "href",
 				},
 			},
 		},
 	}
 	rule.Rules.Book = shelf.BookRule{
 		Name: shelf.TextRule{
-			Selector: "#info > div.hh",
-			Attr:     "text",
+			Rule: "#info > div.hh",
+			Attr: "text",
 		},
 		Author: shelf.TextRule{
-			Selector: "#conml > table > tbody > tr:nth-child(1) > td > div.bcont",
-			Attr:     "text",
-			Regexp:   `.*作者：(.+)状态`,
+			Rule:   "#conml > table > tbody > tr:nth-child(1) > td > div.bcont",
+			Attr:   "text",
+			Regexp: `.*作者：(.+)状态`,
 		},
 		Cover: shelf.TextRule{
-			Selector: "#conml > table > tbody > tr:nth-child(1) > td > div.bcont > img",
-			Attr:     "src",
+			Rule: "#conml > table > tbody > tr:nth-child(1) > td > div.bcont > img",
+			Attr: "src",
 		},
 		Introduce: shelf.TextRule{
-			Selector: "#conml > table > tbody > tr:nth-child(1) > td > div.bcont",
-			Attr:     "text",
-			Regexp:   ".*简介：(.+\n)",
+			Rule:   "#conml > table > tbody > tr:nth-child(1) > td > div.bcont",
+			Attr:   "text",
+			Regexp: ".*简介：(.+\n)",
 		},
 		Chapter: shelf.ChapterRule{
 			List: shelf.TextRule{
-				Selector: "#list > dl > dd",
+				Rule: "#list > dl > dd",
 			},
 			Name: shelf.TextRule{
-				Selector: "a",
-				Attr:     "text",
+				Rule: "a",
+				Attr: "text",
 				Clean: shelf.CleanRule{
-					Texts: "[www.126shu.co]",
+					Regexps: "[www.126shu.co]",
 				},
 			},
 			URL: shelf.TextRule{
-				Selector: "a",
-				Attr:     "href",
+				Rule: "a",
+				Attr: "href",
 			},
 		},
 	}
 
 	rule.Rules.Chapter = shelf.ChapterRule{
 		Name: shelf.TextRule{
-			Selector: "#info > div.hh",
-			Attr:     "text",
+			Rule: "#info > div.hh",
+			Attr: "text",
 		},
 		Content: shelf.TextRule{
-			Selector: "#content",
-			Attr:     "text",
+			Rule: "#content",
+			Attr: "text",
 			Clean: shelf.CleanRule{
-				Texts:     "www.126shu.co",
-				Selectors: "div.zjtj;div.zjxs",
+				Regexps: "www.126shu.co",
+				Rules:   "div.zjtj;div.zjxs",
 			},
 		},
 	}
@@ -141,7 +141,7 @@ func main() {
 	s := shelf.New(shelf.NewExecutor(http.DefaultClient))
 	s.AddSource(rule, shelf.DefaultExtractor())
 
-	source, ok := s.Source(shelf.WithName("奇书网"))
+	source, ok := s.Source("奇书网")
 	if ok {
 		GetBook(source)
 		//Search(source)
