@@ -8,7 +8,7 @@ import (
 	"github.com/zhenzou/shelf"
 )
 
-var rule = shelf.SourceRule{
+var rule = shelf.SourceConfig{
 	Name:    "笔趣阁",
 	BaseURL: "https://m.biqugetv.com",
 	Tags:    []string{"网络小说"},

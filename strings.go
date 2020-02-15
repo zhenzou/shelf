@@ -1,6 +1,7 @@
 package shelf
 
 import (
+	"encoding/json"
 	"strings"
 	"unicode"
 )
@@ -79,4 +80,17 @@ func Compress(s string) string {
 		sb.WriteRune(r)
 	}
 	return sb.String()
+}
+
+func WithDefault(str, def string) string {
+	if IsBlank(str) {
+		return def
+	} else {
+		return str
+	}
+}
+
+func ToJSON(obj interface{}) string {
+	bs, _ := json.Marshal(obj)
+	return string(bs)
 }

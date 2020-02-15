@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/zhenzou/shelf"
 )
 
-var rule = shelf.SourceRule{
+var rule = shelf.SourceConfig{
 	Name:     "奇书网",
 	BaseURL:  "https://www.126shu.co",
 	Tags:     []string{"网络小说"},
@@ -33,9 +34,16 @@ func init() {
 				Attr:   "text",
 				Regexp: ".*作者：(.+)大小",
 			},
+			URL: shelf.TextRule{
+				Rule: "a",
+				Attr: "href",
+			},
 			Introduce: shelf.TextRule{
 				Rule: "div.u",
 				Attr: "text",
+				Clean: shelf.CleanRule{
+					Rules: "o > a",
+				},
 			},
 			Chapter: shelf.ChapterRule{
 				Name: shelf.TextRule{
@@ -68,10 +76,14 @@ func init() {
 			Attr:   "text",
 			Regexp: ".*简介：(.+\n)",
 		},
+		URL: shelf.TextRule{
+			Rule: "body > div:nth-child(4) > div.show > div:nth-child(4) > div.showDown > ul > li:nth-child(1) > a",
+			Attr: "href",
+		},
+		ChapterList: shelf.ElementRule{
+			Rule: "#list > dl > dd",
+		},
 		Chapter: shelf.ChapterRule{
-			List: shelf.TextRule{
-				Rule: "#list > dl > dd",
-			},
 			Name: shelf.TextRule{
 				Rule: "a",
 				Attr: "text",
@@ -102,8 +114,9 @@ func init() {
 	}
 }
 
-func GetBook(source shelf.Source) {
-	book, err := source.GetBookDetail(context.Background(), "https://www.126shu.co/90497/")
+func GetBook(source shelf.Source, url string) {
+	println("book url:", url)
+	book, err := source.GetBookDetail(context.Background(), url)
 	if err != nil {
 		println("err:", err.Error())
 	} else {
@@ -114,14 +127,6 @@ func GetBook(source shelf.Source) {
 		chapters := book.Chapters
 		for _, chapter := range chapters {
 			println(fmt.Sprintf("chapter:%s url:%s", chapter.Name, chapter.URL))
-
-			detail, err := source.GetChapterDetail(context.Background(), chapter.URL)
-			if err != nil {
-				println("get book datail err:", err.Error())
-				return
-			}
-			println(detail.Content)
-			return
 		}
 	}
 }
@@ -131,8 +136,12 @@ func Search(source shelf.Source) {
 	if err != nil {
 		println("err:", err.Error())
 	} else {
-		for _, book := range books {
-			println(fmt.Sprintf("%s %s %s", book.Name, book.Author, book.Introduce))
+		for i, book := range books {
+			bs, _ := json.Marshal(book)
+			println("book:", string(bs))
+			if i == 0 {
+				GetBook(source, book.URL)
+			}
 		}
 	}
 }
@@ -143,7 +152,7 @@ func main() {
 
 	source, ok := s.Source("奇书网")
 	if ok {
-		GetBook(source)
-		//Search(source)
+		//GetBook(source, "https://www.126shu.co/90497/")
+		Search(source)
 	}
 }

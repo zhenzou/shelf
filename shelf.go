@@ -17,7 +17,7 @@ type shelf struct {
 	executor Executor
 }
 
-func (s *shelf) AddSource(rule SourceRule, extractor Extractor) {
+func (s *shelf) AddSource(rule SourceConfig, extractor Extractor) {
 	s.sources[rule.Name] = NewSource(rule, s.executor, extractor)
 }
 
