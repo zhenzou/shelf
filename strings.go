@@ -13,7 +13,7 @@ func IsNotBlank(str string) bool {
 	return !IsBlank(str)
 }
 
-// will trim empty split
+// will trim empty split and trim space
 func Split(s string, sep rune) []string {
 	strs := []string{}
 	sb := strings.Builder{}
@@ -26,14 +26,12 @@ func Split(s string, sep rune) []string {
 			} else {
 				escape = true
 			}
-			continue
-		}
-		if r == ';' {
+		} else if r == ';' {
 			if escape {
 				sb.WriteRune(r)
 				escape = false
 			} else if sb.Len() > 0 {
-				strs = append(strs, sb.String())
+				strs = append(strs, strings.TrimSpace(sb.String()))
 				sb.Reset()
 			}
 		} else {
@@ -42,7 +40,7 @@ func Split(s string, sep rune) []string {
 	}
 
 	if sb.Len() > 0 {
-		strs = append(strs, sb.String())
+		strs = append(strs, strings.TrimSpace(sb.String()))
 	}
 
 	return strs
