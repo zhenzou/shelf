@@ -3,45 +3,66 @@ package shelf
 import (
 	"context"
 	"strings"
+	"sync"
 )
 
-func New(executor Executor) shelf {
-	return shelf{
-		sources:  map[string]Source{},
-		executor: executor,
+func New(executor Executor, extractor Extractor) *Shelf {
+	return &Shelf{
+		sources:   map[string]Source{},
+		executor:  executor,
+		extractor: extractor,
 	}
 }
 
-type shelf struct {
-	sources  map[string]Source
-	executor Executor
+type Shelf struct {
+	sync.RWMutex
+	sources   map[string]Source
+	executor  Executor
+	extractor Extractor
 }
 
-func (s *shelf) AddSource(rule SourceConfig, extractor Extractor) {
-	s.sources[rule.Name] = NewSource(rule, s.executor, extractor)
+func (s *Shelf) AddSource(config SourceConfig) {
+	s.Lock()
+	defer s.Unlock()
+	s.sources[config.Name] = NewSource(config, s.executor, s.extractor)
 }
 
-func (s *shelf) Source(urlOrName string) (Source, bool) {
+func (s *Shelf) RemoveSource(name string) {
+	s.Lock()
+	defer s.Unlock()
+	delete(s.sources, name)
+}
+
+func (s *Shelf) Source(urlOrName string) (Source, bool) {
+	s.RLock()
+	defer s.RUnlock()
 	source, ok := s.sources[urlOrName]
 	if ok {
 		return source, true
 	}
 	for _, source := range s.sources {
-		if strings.Contains(source.Rule().BaseURL, urlOrName) {
+		if strings.Contains(source.Config().BaseURL, urlOrName) {
 			return source, true
 		}
 	}
 	return nil, false
 }
 
-func (s *shelf) Sources() map[string]Source {
+func (s *Shelf) Sources() map[string]Source {
 	return s.sources
 }
 
-func (s *shelf) Search(ctx context.Context, name string) (map[string][]Book, error) {
-	ret := make(map[string][]Book, len(s.sources))
+func (s *Shelf) Search(ctx context.Context, kw string) (map[string][]Book, error) {
+	snap := map[string]Source{}
+	s.RLock()
 	for name, source := range s.sources {
-		books, err := source.Search(ctx, name)
+		snap[name] = source
+	}
+	s.RUnlock()
+
+	ret := make(map[string][]Book, len(snap))
+	for name, source := range snap {
+		books, err := source.Search(ctx, kw)
 		if err != nil {
 			return nil, err
 		}

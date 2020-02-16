@@ -5,26 +5,26 @@ import (
 	"strings"
 )
 
-func NewSource(rule SourceConfig, executor Executor, builder Extractor) Source {
+func NewSource(config SourceConfig, executor Executor, extractor Extractor) Source {
 	return &source{
-		rule:      rule,
+		config:    config,
 		executor:  executor,
-		extractor: builder,
+		extractor: extractor,
 	}
 }
 
 type source struct {
-	rule      SourceConfig
+	config    SourceConfig
 	executor  Executor
 	extractor Extractor
 }
 
 func (s *source) Name() string {
-	return s.rule.Name
+	return s.config.Name
 }
 
-func (s *source) Rule() SourceConfig {
-	return s.rule
+func (s *source) Config() SourceConfig {
+	return s.config
 }
 
 func (s *source) GetBookDetail(ctx context.Context, url string) (BookDetail, error) {
@@ -32,7 +32,7 @@ func (s *source) GetBookDetail(ctx context.Context, url string) (BookDetail, err
 	if err != nil {
 		return book, err
 	}
-	if s.rule.Rules.Book.URL.Rule != "" {
+	if s.config.Rules.Book.URL.Rule != "" {
 		detail2, err := s.getBookDetail(ctx, book.URL)
 		if err != nil {
 			return detail2, err
@@ -72,11 +72,11 @@ func (s *source) getBookDetail(ctx context.Context, url string) (BookDetail, err
 	if err != nil {
 		return BookDetail{}, err
 	}
-	response.Data, err = decode(s.rule.Encoding, response.Data)
+	response.Data, err = decode(s.config.Encoding, response.Data)
 	if err != nil {
 		return BookDetail{}, err
 	}
-	book, err := s.extractor.ExtractBook(s.rule.Rules.Book, response.Data)
+	book, err := s.extractor.ExtractBook(s.config.Rules.Book, response.Data)
 	if err != nil {
 		return BookDetail{}, err
 	}
@@ -89,7 +89,7 @@ func (s *source) buildFullURL(url string) string {
 		return url
 	}
 
-	baseURL := s.rule.BaseURL
+	baseURL := s.config.BaseURL
 	if strings.HasPrefix(url, "/") {
 		return baseURL + url
 	}
@@ -106,11 +106,11 @@ func (s *source) GetChapterDetail(ctx context.Context, url string) (ChapterDetai
 	if err != nil {
 		return ChapterDetail{}, err
 	}
-	response.Data, err = decode(s.rule.Encoding, response.Data)
+	response.Data, err = decode(s.config.Encoding, response.Data)
 	if err != nil {
 		return ChapterDetail{}, err
 	}
-	detail, err := s.extractor.ExtractChapter(s.rule.Rules.Chapter, response.Data)
+	detail, err := s.extractor.ExtractChapter(s.config.Rules.Chapter, response.Data)
 	if err != nil {
 		return ChapterDetail{}, err
 	}
@@ -120,11 +120,11 @@ func (s *source) GetChapterDetail(ctx context.Context, url string) (ChapterDetai
 }
 
 func (s *source) Search(ctx context.Context, name string) ([]Book, error) {
-	url := s.rule.Rules.Search.URL
+	url := s.config.Rules.Search.URL
 	if url == "" {
 		return nil, nil
 	}
-	bytes, err := encode(s.rule.Encoding, []byte(name))
+	bytes, err := encode(s.config.Encoding, []byte(name))
 	if err != nil {
 		return nil, err
 	}
@@ -133,9 +133,9 @@ func (s *source) Search(ctx context.Context, name string) ([]Book, error) {
 	if err != nil {
 		return nil, err
 	}
-	response.Data, err = decode(s.rule.Encoding, response.Data)
+	response.Data, err = decode(s.config.Encoding, response.Data)
 	if err != nil {
 		return nil, err
 	}
-	return s.extractor.ExtractBooks(s.rule.Rules.Search, response.Data)
+	return s.extractor.ExtractBooks(s.config.Rules.Search, response.Data)
 }

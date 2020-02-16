@@ -8,17 +8,14 @@ import (
 	"github.com/zhenzou/shelf"
 )
 
-var rule = shelf.SourceConfig{
+var config = shelf.SourceConfig{
 	Name:    "笔趣阁",
 	BaseURL: "https://m.biqugetv.com",
-	Tags:    []string{"网络小说"},
-	Order:   0,
-	Enable:  true,
 }
 
 func init() {
 
-	rule.Rules.Chapter = shelf.ChapterRule{
+	config.Rules.Chapter = shelf.ChapterRule{
 		Name: shelf.TextRule{
 			Rule: "#chaptercontent > div > span",
 			Attr: "text",
@@ -53,8 +50,8 @@ func Iterate(source shelf.Source) {
 }
 
 func main() {
-	s := shelf.New(shelf.NewExecutor(http.DefaultClient))
-	s.AddSource(rule, shelf.NewHTMLExtractor())
+	s := shelf.New(shelf.NewExecutor(http.DefaultClient), shelf.NewHTMLExtractor())
+	s.AddSource(config)
 
 	source, ok := s.Source("笔趣阁")
 	if ok {

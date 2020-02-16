@@ -6,7 +6,7 @@ import (
 
 type Source interface {
 	Name() string
-	Rule() SourceConfig
+	Config() SourceConfig
 	GetBookDetail(ctx context.Context, url string) (BookDetail, error)
 	GetChapterDetail(ctx context.Context, url string) (ChapterDetail, error)
 	Search(ctx context.Context, name string) ([]Book, error)

@@ -2,11 +2,8 @@ package shelf
 
 type SourceConfig struct {
 	Name     string
-	Enable   bool
 	Encoding string
 	BaseURL  string
-	Tags     []string
-	Order    int
 	Rules    struct {
 		Find    ListRule    // 发现
 		Search  ListRule    // 搜索
@@ -16,10 +13,9 @@ type SourceConfig struct {
 }
 
 type ListRule struct {
-	URL     string      // URL模版
-	List    ElementRule // List元素
-	Book    BookRule    // BOOK
-	Chapter ChapterRule
+	URL  string      // URL模版
+	List ElementRule // List元素
+	Book BookRule    // BOOK
 }
 
 type BookRule struct {

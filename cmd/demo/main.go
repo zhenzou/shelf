@@ -9,17 +9,14 @@ import (
 	"github.com/zhenzou/shelf"
 )
 
-var rule = shelf.SourceConfig{
+var config = shelf.SourceConfig{
 	Name:     "奇书网",
 	BaseURL:  "https://www.126shu.co",
-	Tags:     []string{"网络小说"},
-	Order:    0,
 	Encoding: "gbk",
-	Enable:   true,
 }
 
 func init() {
-	rule.Rules.Search = shelf.ListRule{
+	config.Rules.Search = shelf.ListRule{
 		URL: "https://www.126shu.co/modules/article/search.php?s=12622474051500695548&orderby=1&show=title,bname,zuozhe,smalltext&myorder=1&searchkey=${name}",
 		List: shelf.ElementRule{
 			Rule: "body > div:nth-child(4) > div.list > div > ul > li",
@@ -57,7 +54,7 @@ func init() {
 			},
 		},
 	}
-	rule.Rules.Book = shelf.BookRule{
+	config.Rules.Book = shelf.BookRule{
 		Name: shelf.TextRule{
 			Rule: "#info > div.hh",
 			Attr: "text",
@@ -98,7 +95,7 @@ func init() {
 		},
 	}
 
-	rule.Rules.Chapter = shelf.ChapterRule{
+	config.Rules.Chapter = shelf.ChapterRule{
 		Name: shelf.TextRule{
 			Rule: "#info > div.hh",
 			Attr: "text",
@@ -147,8 +144,8 @@ func Search(source shelf.Source) {
 }
 
 func main() {
-	s := shelf.New(shelf.NewExecutor(http.DefaultClient))
-	s.AddSource(rule, shelf.NewHTMLExtractor())
+	s := shelf.New(shelf.NewExecutor(http.DefaultClient), shelf.NewHTMLExtractor())
+	s.AddSource(config)
 
 	source, ok := s.Source("奇书网")
 	if ok {
